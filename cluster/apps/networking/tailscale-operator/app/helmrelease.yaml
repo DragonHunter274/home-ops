@@ -1,0 +1,30 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: &app tailscale
+  namespace: networking
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: tailscale-operator
+      version: "1.72.1"
+      interval: 30m
+      sourceRef:
+        name: *app
+        kind: HelmRepository
+        namespace: flux-system
+  values:
+    operatorConfig:
+      image:
+        repo: "ghcr.io/tailscale/k8s-operator"
+        tag: "v1.72.1"
+      logging: "debug"
+      hostname: "tailscale-operator-k8s"
+    proxyConfig:
+      image:
+        repository: "ghcr.io/tailscale/tailscale"
+        tag: "v1.72.1"
+    apiServerProxyConfig:
+      mode: "noauth"

@@ -1,0 +1,60 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+  namespace: databases
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.1
+  storage:
+    storageClass: local-path # see: https://github.com/rancher/local-path-provisioner
+    size: 5Gi
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://fablab-postgres-backup-3/"
+      endpointURL: "https://s3.dh274.com"
+      s3Credentials:
+        accessKeyId:
+          name: minio-backup-credentials
+          key: accessKey
+        secretAccessKey:
+          name: minio-backup-credentials
+          key: secretKey
+      data:
+        compression: bzip2
+      wal:
+        compression: gzip
+        maxParallel: 4
+    retentionPolicy: "10w"
+
+  bootstrap:
+    initdb:
+      database: app
+      owner: app
+      secret:
+        name: pg-secret
+
+#  bootstrap:
+#    recovery:
+#      source: postgres
+
+  externalClusters:
+    - name: postgres-backup
+      barmanObjectStore:
+        serverName: postgres
+        destinationPath: "s3://fablab-postgres-backup/"
+        endpointURL: "https://s3.dh274.com"
+        s3Credentials:
+          accessKeyId:
+            name: minio-backup-credentials
+            key: accessKey
+          secretAccessKey:
+            name: minio-backup-credentials
+            key: secretKey
+        data:
+          compression: bzip2
+        wal:
+          compression: gzip
+          maxParallel: 4

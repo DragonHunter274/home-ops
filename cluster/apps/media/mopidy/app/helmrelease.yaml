@@ -1,0 +1,110 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mopidy
+  namespace: media
+spec:
+  interval: 5m
+  install:
+    timeout: 5m
+    remediation:
+      retries: 5
+  upgrade:
+    timeout: 15m
+    remediation:
+      retries: 5
+      remediateLastFailure: true
+    cleanupOnFail: true
+  chart:
+    spec:
+      # renovate: registryUrl=https://charts.buvis.net
+      chart: mopidy
+      version: 0.5.6
+      sourceRef:
+        kind: HelmRepository
+        name: buvis
+        namespace: flux-system
+      interval: 5m
+  values:
+    image:
+      repository: ghcr.io/dragonhunter274/container-images/mopidy
+      tag: v3.70.0@sha256:7730f38e2cfc496b5c31c81505f005a96e04c0d80becaa8e61969109acd69e12
+    service:
+      main:
+        enabled: true
+        type: LoadBalancer
+        primary: true
+        ports:
+          http:
+            enabled: true
+            primary: true
+            protocol: HTTP
+            port: 6680
+            targetPort: 6680
+
+      mpd:
+        enabled: true
+        type: LoadBalancer
+        ports:
+          tcp:
+            enabled: true
+            protocol: TCP
+            port: 6600
+            targetPort: 6600
+    persistence:
+      media:
+        enabled: false
+      data:
+        enabled: true
+        existingClaim: mopidy-data
+    config:
+      customConfig: |
+        [core]
+        cache_dir = /app/cache
+        config_dir = /config
+        data_dir = /app
+
+        [logging]
+        verbosity = 0
+        format = %(levelname)-8s %(asctime)s [%(process)d:%(threadName)s] %(name)s\n  %(message)s
+        color = true
+        config_file =
+
+        [audio]
+        # output = alsasink  # play through /dev/snd
+        # output = pulsesink server=127.0.0.1:34567  # use local PulseAudio server (see https://docs.mopidy.com/en/latest/running/service/?highlight=pulseaudio#system-service-and-pulseaudio)
+        output = audioresample ! audioconvert ! audio/x-raw,rate=48000,channels=2,format=S16LE ! wavenc ! tcpclientsink host=10.100.1.50 port=4956
+        mixer_volume = 80
+
+
+        [mpd]
+        hostname = 0.0.0.0
+        zeroconf = $hostname
+
+        [http]
+        enabled = true
+        hostname = 0.0.0.0
+        port = 6680
+        static_dir =
+        zeroconf = $hostname
+
+
+        [youtube]
+        enabled = true
+        youtube_api_key = ${SECRET_YT_API_KEY}
+        api_enabled = true
+        musicapi_enabled = true
+
+        [ytmusic]
+        enabled=false
+        auth_json=/app/auth.json
+
+        [tidal]
+        enabled = false
+        quality = LOSSLESS
+
+        [defaultplaylist]
+        enabled = false
+        defaultplaylist_name = play-on-start
+        autoplay = true

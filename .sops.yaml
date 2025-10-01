@@ -1,0 +1,10 @@
+creation_rules:
+  - encrypted_regex: '^(data|stringData)$'
+    age: age10wjzxqwstyddl6zy02drchuy76a3fph3jznnp8agu5t9gkqjdegsj4a0ls,age1qvjw6nz4nqssuec8am60shjy358apazsqyrecmcq7rcm7mw5mcwq42l2x7
+  - path_regex: components/.*\.sops\.ya?ml
+    unencrypted_regex: "^(kind)$"
+    age: age10wjzxqwstyddl6zy02drchuy76a3fph3jznnp8agu5t9gkqjdegsj4a0ls,age1qvjw6nz4nqssuec8am60shjy358apazsqyrecmcq7rcm7mw5mcwq42l2x7
+  - path_regex: cluster/.*\.ya?ml
+    encrypted_regex: "^(data|stringData)$"
+    age: age10wjzxqwstyddl6zy02drchuy76a3fph3jznnp8agu5t9gkqjdegsj4a0ls,age1qvjw6nz4nqssuec8am60shjy358apazsqyrecmcq7rcm7mw5mcwq42l2x7
+

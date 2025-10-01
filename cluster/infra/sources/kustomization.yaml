@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: flux-system
+resources:
+  - podinfo-charts.yaml
+  - bjw-s-charts.yaml
+  - longhorn.yaml
+  - tailscale.yaml
+  - cloudnative-pg-charts.yaml
+  - app-template-ocirepo.yaml
+  - prometheus-community-charts.yaml
+  - buvis.yaml
+  - dex.yaml
+#  - grafana-ocirepo.yaml

@@ -1,0 +1,11 @@
+---
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: fablab-local-network
+spec:
+  hostname: fablab-local-network
+  subnetRouter:
+    advertiseRoutes:
+      - "10.100.0.0/16"
+  exitNode: true

@@ -1,0 +1,28 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: podinfo
+  namespace: utilities
+spec:
+  releaseName: podinfo
+  chart:
+    spec:
+      chart: podinfo
+      version: "6.3.6"
+      sourceRef:
+        kind: HelmRepository
+        name: podinfo
+        namespace: flux-system
+  test:
+    enable: false
+  interval: 5m
+  values:
+    ingress:
+      enabled: false
+      className: tailscale
+      annotations: 
+        tailscale.com/funnel: "true"
+    image:
+      pullPolicy: Always
+    service:
+      type: LoadBalancer

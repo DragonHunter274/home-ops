@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./utilities/podinfo/ks.yaml
+  - ./networking/tailscale-operator/ks.yaml
+  - ./storage/longhorn/ks.yaml
+  - ./databases/cloudnative-pg/ks.yaml
+  - ./utilities/cashless-server/ks.yaml
+  - ./monitoring/prometheus-stack/ks.yaml
+  - ./media/mopidy/ks.yaml
+  - ./monitoring/grafana/ks.yaml
+  - ./monitoring/alloy/ks.yaml
+  - ./monitoring/loki/ks.yaml
+    # - ./utilities/nginx-test/ks.yaml

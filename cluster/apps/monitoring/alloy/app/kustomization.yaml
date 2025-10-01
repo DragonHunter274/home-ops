@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./helm-release.yaml
+  - ./syslog-service.yaml
+configMapGenerator:
+  - name: alloy-configmap
+    namespace: monitoring
+    files:
+      - config.alloy=./resources/config.alloy
+generatorOptions:
+  disableNameSuffixHash: true

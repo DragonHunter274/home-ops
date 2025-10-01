@@ -1,0 +1,26 @@
+
+# Source pointing to dev branch
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: dev
+  url: https://github.com/dragonhunter274/home-ops
+---
+# Kustomization pointing to dev environment
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./environments/dev  # <-- Path to dev environment
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
