@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - config               # Dev config (shared + dev secrets)
-  - ../cluster/base      # This includes your apps.yaml!
+  - ../../cluster/base      # This includes your apps.yaml!
