@@ -27,6 +27,9 @@ spec:
         name: cluster-settings
       - kind: Secret
         name: cluster-secrets
+      - kind: Secret
+        name: cluster-env-secrets  # Environment-specific overrides
+        optional: true  # Won't fail if missing
   patches:
     # Used to keep kustomizations DRY that require decryption and substitution variables
     # TODO: Consider if there are use cases where decryption is used but not substitution and vice versa, if so split this into two separate optional patches
@@ -46,5 +49,8 @@ spec:
                 name: cluster-secrets
               - kind: ConfigMap
                 name: cluster-settings
+              - kind: Secret
+                name: cluster-env-secrets
+                optional: true
       target:
         labelSelector: substitution.flux.home.arpa/enabled=true
