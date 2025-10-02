@@ -15,12 +15,13 @@ This is a Kubernetes GitOps repository managed by **Flux CD v2**. It uses a mult
 - The dev environment kustomization includes both `config` (env-specific) and `../../cluster/base` (shared)
 
 **Reconciliation Order:**
-1. **Config** (`cluster/base/config.yaml`) - Creates ConfigMap (`cluster-settings`) and Secret (`cluster-secrets`) from `cluster/config/`
-2. **CRDs** (`cluster/base/crds.yaml`) - Installs Custom Resource Definitions from `cluster/crds/`
-3. **Infrastructure** (`cluster/base/infrastructure.yaml`) - Deploys infrastructure components from `cluster/infra/`
-4. **Apps** (`cluster/base/apps.yaml`) - Deploys applications from `cluster/apps/`
+1. **Env Config** (`environments/<env>/config.yaml`) - Creates environment-specific Secret (`cluster-env-secrets`) from `environments/<env>/config/` (requires SOPS decryption)
+2. **Config** (`cluster/base/config.yaml`) - Creates ConfigMap (`cluster-settings`) and Secret (`cluster-secrets`) from `cluster/config/`
+3. **CRDs** (`cluster/base/crds.yaml`) - Installs Custom Resource Definitions from `cluster/crds/`
+4. **Infrastructure** (`cluster/base/infrastructure.yaml`) - Deploys infrastructure components from `cluster/infra/`
+5. **Apps** (`cluster/base/apps.yaml`) - Deploys applications from `cluster/apps/`
 
-The `apps` Kustomization explicitly depends on `infrastructure` and `crds` via `dependsOn`.
+The `apps` Kustomization explicitly depends on `infrastructure` and `crds` via `dependsOn`. Environment-specific config is reconciled independently and must be a Flux Kustomization (not just a kustomize file) to handle SOPS decryption.
 
 **Secrets Management:**
 - SOPS (with age encryption) is used for all secrets
@@ -171,6 +172,8 @@ spec:
 
 **Using environment-specific config:**
 Environment-specific secrets go in `environments/<env>/config/env-secrets.sops.yaml` and are available as `cluster-env-secrets` Secret for substitution.
+
+**IMPORTANT:** Environment configs must be deployed via a Flux Kustomization (like `environments/<env>/config.yaml`) with SOPS decryption enabled, not just referenced as a kustomize resource. Only Flux Kustomizations can decrypt SOPS-encrypted files.
 
 ## Repository Conventions
 

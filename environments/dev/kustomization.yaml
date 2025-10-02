@@ -2,5 +2,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - config               # Dev config (shared + dev secrets)
+  - config.yaml             # Flux Kustomization for env-specific secrets
   - ../../cluster/base      # This includes your apps.yaml!
