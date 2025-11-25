@@ -16,5 +16,5 @@ resources:
   - ./monitoring/grafana/ks.yaml
   - ./monitoring/alloy/ks.yaml
   - ./monitoring/loki/ks.yaml
-  #- ./automation/home-assistant/ks.yaml
+  - ./automation/home-assistant/ks.yaml
     # - ./utilities/nginx-test/ks.yaml

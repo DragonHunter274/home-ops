@@ -6,3 +6,8 @@ metadata:
   name: cluster-settings
 data:
   RURI_ADDR: "192.168.0.25"
+  CLUSTER_EXTERNAL_SUBNET_PREFIX: 10.0.2
+  CLUSTER_MACVLAN_HA: "50"
+  FIX_EXTERNAL_IP: "10.0.2.1"
+  CLUSTER_DOMAIN: "dev.example.com"
+  CLUSTER_LB_HA: "51"

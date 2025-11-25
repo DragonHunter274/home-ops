@@ -1,0 +1,150 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: home-assistant
+  namespace: automation
+spec:
+  interval: 5m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      home-assistant:
+        pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: |
+              [{
+                "name":"macvlan-static",
+                "namespace": "kube-system",
+                "ips": ["${CLUSTER_EXTERNAL_SUBNET_PREFIX}.${CLUSTER_MACVLAN_HA}/24"]
+              }]
+          hostAliases:
+          # We cannot access the ingress LB address directly - go through external IP
+          - ip: "${FIX_EXTERNAL_IP}"
+            hostnames:
+            - "nextcloud.${CLUSTER_DOMAIN}"
+            - "jellyfin.pub.${CLUSTER_DOMAIN}"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/home-assistant/home-assistant
+              tag: 2025.11.3@sha256:f971850a6ec1fb5c5fd4e1748058e9e1f589aaf0da933b8d88bb5dee03f5b5e8
+            env:
+              TZ: "Europe/Berlin"
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+          editor:
+            image:
+              repository: ghcr.io/coder/code-server
+              tag: 4.106.2@sha256:cca5c0bbff928df75ba9344a878e4ca7a321c0d42c34b39e02722b29855a56ac
+            args:
+            - --auth
+            - none
+            - --port
+            - "12321"
+            - /config
+            securityContext:
+              runAsUser: 0
+
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        existingClaim: home-assistant-pvc
+        globalMounts:
+          - path: /config
+      ssh-key:
+        type: secret
+        name: git-ssh-keys
+        defaultMode: 256
+        advancedMounts:
+          home-assistant:
+            editor:
+            - path: /root/.ssh/id_rsa
+              subPath: id_rsa
+              readOnly: true
+
+    service:
+      app:
+        controller: home-assistant
+        type: LoadBalancer
+        annotations:
+          metallb.universe.tf/address-pool: manual
+        loadBalancerIP: "${CLUSTER_EXTERNAL_SUBNET_PREFIX}.${CLUSTER_LB_HA}"
+        publishNotReadyAddresses: true
+        ports:
+          http:
+            port: 8123
+          homematicproxy:
+            port: 2001
+      editor:
+        controller: home-assistant
+        ports:
+          http:
+            port: 12321
+
+    ingress:
+      app:
+        enabled: true
+        annotations:
+          hajimari.io/enable: "true"
+          hajimari.io/icon: home-assistant
+          hajimari.io/info: Home Automation
+          hajimari.io/group: automation
+          nginx.org/websocket-services: home-assistant
+          nginx.ingress.kubernetes.io/enable-global-auth: "false"
+          nginx.ingress.kubernetes.io/ssl-redirect: "false"
+        hosts:
+        - host: ha.${CLUSTER_DOMAIN}
+          paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+        - host: ha.pub.${CLUSTER_DOMAIN}
+          paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+        - host: ha.home.${CLUSTER_DOMAIN}
+          paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+      editor:
+        enabled: true
+        annotations:
+            hajimari.io/enable: "true"
+            hajimari.io/icon: vscode-icons:file-type-vscode
+            hajimari.io/info: Home-Assistant Editor
+            hajimari.io/group: automation
+            nginx.ingress.kubernetes.io/configuration-snippet: |
+              auth_request_set $required_groups 'casa_editors';
+        hosts:
+        - host: ha-editor.pub.${CLUSTER_DOMAIN}
+          paths:
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: editor
+              port: http
