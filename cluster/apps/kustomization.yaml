@@ -3,12 +3,18 @@ kind: Kustomization
 resources:
   - ./utilities/podinfo/ks.yaml
   - ./networking/tailscale-operator/ks.yaml
+ # - ./networking/powerdns/ks.yaml
+ # - ./networking/external-dns/ks.yaml
   - ./storage/longhorn/ks.yaml
+  - ./storage/openebs/ks.yaml
+  #- ./storage/samba-operator/ks.yaml
   - ./databases/cloudnative-pg/ks.yaml
   - ./utilities/cashless-server/ks.yaml
   - ./monitoring/prometheus-stack/ks.yaml
   - ./media/mopidy/ks.yaml
+  #- ./media/bitmagnet/ks.yaml
   - ./monitoring/grafana/ks.yaml
   - ./monitoring/alloy/ks.yaml
   - ./monitoring/loki/ks.yaml
+  #- ./automation/home-assistant/ks.yaml
     # - ./utilities/nginx-test/ks.yaml

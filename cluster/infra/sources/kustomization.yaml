@@ -11,4 +11,7 @@ resources:
   - prometheus-community-charts.yaml
   - buvis.yaml
   - dex.yaml
+  - openebs.yaml
+  - coredns.yaml
+  - bitnami.yaml
 #  - grafana-ocirepo.yaml

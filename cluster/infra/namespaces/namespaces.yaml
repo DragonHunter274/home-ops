@@ -60,6 +60,13 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: openebs-system
+  labels:
+    app.kubernetes.io/component: openebs-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: podinfo
   labels:
     app.kubernetes.io/component: podinfo
@@ -114,6 +121,13 @@ metadata:
   name: home
   labels:
     app.kubernetes.io/component: home
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: automation
+  labels:
+    app.kubernetes.io/component: automation
 ---
 apiVersion: v1
 kind: Namespace
