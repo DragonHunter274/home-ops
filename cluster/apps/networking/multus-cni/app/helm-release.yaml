@@ -1,0 +1,65 @@
+---
+# See https://github.com/angelnu/helm-charts/blob/main/charts/apps/multus/values.yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: multus
+  namespace: kube-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: multus
+      version: 5.0.7
+      sourceRef:
+        kind: HelmRepository
+        name: angelnu-helm-charts
+        namespace: flux-system
+      interval: 5m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    image:
+      repository: ghcr.io/k8snetworkplumbingwg/multus-cni
+      tag: v4.2.3-thick
+    cni:
+      image:
+        repository: ghcr.io/angelnu/cni-plugins
+        tag: 1.8.0
+      paths:
+        # K3s CNI paths - install binaries to current/bin
+        bin: /var/lib/rancher/k3s/data/current/bin
+        config: /var/lib/rancher/k3s/agent/etc/cni/net.d
+
+    # Override the CNI config to tell delegates where to find binaries
+    config:
+      cni_conf:
+        confDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
+        binDir: /var/lib/rancher/k3s/data/current/bin
+        logLevel: verbose
+      # Set PATH for NixOS - CNI plugins need to find iptables
+      env:
+        PATH: "/run/current-system/sw/bin:/var/lib/rancher/k3s/data/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+    # Mount Nix store for NixOS compatibility (flannel symlinks to /nix/store)
+    podAnnotations:
+      container.apparmor.security.beta.kubernetes.io/multus: unconfined
+
+    persistence:
+      nixstore:
+        enabled: true
+        type: hostPath
+        hostPath: /nix/store
+        mountPath: /nix/store
+        readOnly: true
+      systemsw:
+        enabled: true
+        type: hostPath
+        hostPath: /run/current-system/sw
+        mountPath: /run/current-system/sw
+        readOnly: true

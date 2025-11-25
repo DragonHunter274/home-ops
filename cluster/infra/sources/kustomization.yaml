@@ -14,4 +14,5 @@ resources:
   - openebs.yaml
   - coredns.yaml
   - bitnami.yaml
+  - angelnu-helm-charts.yaml
 #  - grafana-ocirepo.yaml

@@ -11,3 +11,5 @@ data:
   FIX_EXTERNAL_IP: "10.0.2.1"
   CLUSTER_DOMAIN: "dev.example.com"
   CLUSTER_LB_HA: "51"
+  FIX_EXTERNAL_IP: "10.0.2.1"
+  CLUSTER_DOMAIN: "dev.example.com"
