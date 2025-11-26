@@ -15,4 +15,5 @@ resources:
   - coredns.yaml
   - bitnami.yaml
   - angelnu-helm-charts.yaml
+  - metallb-charts.yaml
 #  - grafana-ocirepo.yaml

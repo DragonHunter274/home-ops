@@ -4,6 +4,7 @@ resources:
   - ./utilities/podinfo/ks.yaml
   - ./networking/tailscale-operator/ks.yaml
   - ./networking/multus-cni/ks.yaml
+  - ./networking/metallb/ks.yaml
  # - ./networking/powerdns/ks.yaml
  # - ./networking/external-dns/ks.yaml
   - ./storage/longhorn/ks.yaml
