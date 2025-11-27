@@ -1,0 +1,33 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: powerdns-admin-init-db
+  namespace: networking
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: init-db
+          image: ghcr.io/home-operations/postgres-init:18
+          env:
+            - name: INIT_POSTGRES_HOST
+              value: powerdns-postgres-rw.networking.svc.cluster.local
+            - name: INIT_POSTGRES_SUPER_USER
+              value: postgres
+            - name: INIT_POSTGRES_SUPER_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: powerdns-postgres-superuser
+                  key: password
+            - name: INIT_POSTGRES_USER
+              value: powerdnsadmin
+            - name: INIT_POSTGRES_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: powerdns-admin-secret
+                  key: db-password
+            - name: INIT_POSTGRES_DBNAME
+              value: powerdnsadmin
