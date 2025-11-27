@@ -1,0 +1,23 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: powerdns-postgres
+  namespace: networking
+spec:
+  instances: 3
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.1
+  enableSuperuserAccess: true
+
+  storage:
+    storageClass: openebs-hostpath
+    size: 5Gi
+
+  bootstrap:
+    initdb:
+      database: powerdns
+      owner: powerdns
+      secret:
+        name: powerdns-postgres-secret
+

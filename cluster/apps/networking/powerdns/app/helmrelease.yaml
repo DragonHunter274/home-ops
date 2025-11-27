@@ -1,0 +1,129 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app powerdns
+  namespace: networking
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      powerdns:
+        replicas: 3
+        strategy: RollingUpdate
+        containers:
+          app:
+            image:
+              repository: powerdns/pdns-auth-50
+              tag: "5.0.1"
+            env:
+              # API Key for web server
+              PDNS_api_key:
+                valueFrom:
+                  secretKeyRef:
+                    name: powerdns-api-secret
+                    key: api-key
+              # Backend - PostgreSQL
+              PDNS_launch: gpgsql
+              PDNS_gpgsql_host: powerdns-postgres-rw.networking.svc.cluster.local
+              PDNS_gpgsql_port: "5432"
+              PDNS_gpgsql_dbname: powerdns
+              PDNS_gpgsql_user:
+                valueFrom:
+                  secretKeyRef:
+                    name: powerdns-postgres-secret
+                    key: username
+              PDNS_gpgsql_password:
+                valueFrom:
+                  secretKeyRef:
+                    name: powerdns-postgres-secret
+                    key: password
+              # Enable API for external-dns
+              PDNS_api: "yes"
+              PDNS_api_readonly: "no"
+              PDNS_webserver: "yes"
+              PDNS_webserver_address: "0.0.0.0"
+              PDNS_webserver_port: "8081"
+              PDNS_webserver_allow_from: "0.0.0.0/0"
+              # Logging
+              PDNS_log_dns_details: "yes"
+              PDNS_log_dns_queries: "no"
+              PDNS_loglevel: "4"
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 53
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: 53
+                  initialDelaySeconds: 10
+                  periodSeconds: 5
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                add:
+                  - NET_BIND_SERVICE
+                drop:
+                  - ALL
+
+    service:
+      app:
+        controller: powerdns
+        type: LoadBalancer
+        ports:
+          dns-tcp:
+            port: 53
+            protocol: TCP
+          dns-udp:
+            port: 53
+            protocol: UDP
+          api:
+            port: 8081
+            protocol: TCP
+
+    persistence:
+      config:
+        type: configMap
+        name: powerdns-config
+        globalMounts:
+          - path: /etc/powerdns/pdns.conf
+            subPath: pdns.conf
+            readOnly: true
+      config-secrets:
+        type: secret
+        name: powerdns-config-secrets
+        globalMounts:
+          - path: /etc/powerdns/pdns.d/credentials.conf
+            subPath: credentials.conf
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
