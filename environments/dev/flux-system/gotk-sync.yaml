@@ -18,7 +18,7 @@ metadata:
   name: flux-system
   namespace: flux-system
 spec:
-  interval: 10m0s
+  interval: 1m0s
   path: ./environments/dev  # <-- Path to dev environment
   prune: true
   sourceRef:
