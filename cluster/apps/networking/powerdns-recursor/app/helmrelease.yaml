@@ -23,23 +23,33 @@ spec:
       powerdns-recursor:
         replicas: 3
         strategy: RollingUpdate
+        initContainers:
+          init-forward-zones:
+            image:
+              repository: busybox
+              tag: "1.36"
+            command:
+              - sh
+              - -c
+              - |
+                # Resolve PowerDNS Auth service to IP
+                AUTH_IP=$(nslookup powerdns.networking.svc.cluster.local | grep -A1 "Name:" | tail -1 | awk '{print $3}')
+                if [ -z "$AUTH_IP" ]; then
+                  echo "Failed to resolve powerdns.networking.svc.cluster.local"
+                  exit 1
+                fi
+                echo "Resolved PowerDNS Auth to: $AUTH_IP"
+                # Write forward zone config with IP address
+                echo "+${SECRET_DEV_DOMAIN}=$AUTH_IP" > /etc/powerdns/recursor.d/forward-zones.conf
+                cat /etc/powerdns/recursor.d/forward-zones.conf
         containers:
           app:
             image:
               repository: powerdns/pdns-recursor-50
               tag: "5.0.3"
-            args:
-              - --local-address=0.0.0.0
-              - --local-port=53
-              - --allow-from=0.0.0.0/0
-              - --log-common-errors=yes
-              - --loglevel=4
-              # Query root servers directly (like Unbound)
-              - --hint-file=/usr/share/dns/root.hints
-              # Enable DNSSEC validation
-              - --dnssec=validate
-              # Forward authoritative zones to PowerDNS Auth (using recurse to allow DNS names)
-              - --forward-zones-recurse=${SECRET_DEV_DOMAIN}=powerdns.networking.svc.cluster.local
+            command:
+              - /usr/sbin/pdns_recursor
+              - --config-dir=/etc/powerdns
             probes:
               liveness:
                 enabled: true
@@ -83,3 +93,16 @@ spec:
           dns-udp:
             port: 53
             protocol: UDP
+
+    persistence:
+      config:
+        type: configMap
+        name: powerdns-recursor-config
+        globalMounts:
+          - path: /etc/powerdns/recursor.conf
+            subPath: recursor.conf
+            readOnly: true
+      forward-zones:
+        type: emptyDir
+        globalMounts:
+          - path: /etc/powerdns/recursor.d

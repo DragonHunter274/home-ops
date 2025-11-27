@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: powerdns-recursor-config
+  namespace: networking
+data:
+  recursor.conf: |
+    # Listen on all interfaces
+    local-address=0.0.0.0
+    local-port=53
+
+    # Allow queries from anywhere
+    allow-from=0.0.0.0/0
+
+    # Logging
+    log-common-errors=yes
+    loglevel=4
+
+    # Query root servers directly (like Unbound)
+    hint-file=/usr/share/dns/root.hints
+
+    # Enable DNSSEC validation
+    dnssec=validate
+
+    # Export config directory for forward zones
+    include-dir=/etc/powerdns/recursor.d
