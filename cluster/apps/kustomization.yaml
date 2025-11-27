@@ -6,6 +6,7 @@ resources:
   - ./networking/multus-cni/ks.yaml
   - ./networking/metallb/ks.yaml
   - ./networking/powerdns/ks.yaml
+  - ./networking/powerdns-recursor/ks.yaml
   - ./networking/powerdns-admin/ks.yaml
  # - ./networking/external-dns/ks.yaml
   - ./storage/longhorn/ks.yaml
