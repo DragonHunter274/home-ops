@@ -38,8 +38,8 @@ spec:
               - --hint-file=/usr/share/dns/root.hints
               # Enable DNSSEC validation
               - --dnssec=validate
-              # Forward authoritative zones to PowerDNS Auth
-              - --forward-zones=${SECRET_DEV_DOMAIN}=powerdns.networking.svc.cluster.local:53
+              # Forward authoritative zones to PowerDNS Auth (using recurse to allow DNS names)
+              - --forward-zones-recurse=${SECRET_DEV_DOMAIN}=powerdns.networking.svc.cluster.local
             probes:
               liveness:
                 enabled: true
