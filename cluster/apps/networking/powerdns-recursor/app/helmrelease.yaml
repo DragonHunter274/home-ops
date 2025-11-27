@@ -29,10 +29,11 @@ spec:
               repository: registry.k8s.io/kubectl
               tag: "v1.31.0"
             command:
-              - sh
+              - /bin/sh
               - -c
+            args:
               - |
-                set -e
+                set -ex
                 echo "Getting PowerDNS service ClusterIP from Kubernetes API..."
 
                 # Get the ClusterIP of the PowerDNS service
