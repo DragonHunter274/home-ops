@@ -26,21 +26,28 @@ spec:
         initContainers:
           init-forward-zones:
             image:
-              repository: busybox
-              tag: "1.36"
+              repository: registry.k8s.io/kubectl
+              tag: "v1.31.0"
             command:
               - sh
               - -c
               - |
-                # Resolve PowerDNS Auth service to IP
-                AUTH_IP=$(nslookup powerdns.networking.svc.cluster.local | grep -A1 "Name:" | tail -1 | awk '{print $3}')
+                set -e
+                echo "Getting PowerDNS service ClusterIP from Kubernetes API..."
+
+                # Get the ClusterIP of the PowerDNS service
+                AUTH_IP=$(kubectl get svc powerdns -n networking -o jsonpath='{.spec.clusterIP}')
+
                 if [ -z "$AUTH_IP" ]; then
-                  echo "Failed to resolve powerdns.networking.svc.cluster.local"
+                  echo "ERROR: Failed to get PowerDNS service ClusterIP"
                   exit 1
                 fi
-                echo "Resolved PowerDNS Auth to: $AUTH_IP"
+
+                echo "PowerDNS Auth ClusterIP: $AUTH_IP"
+
                 # Write forward zone config with IP address
                 echo "+${SECRET_DEV_DOMAIN}=$AUTH_IP" > /etc/powerdns/recursor.d/forward-zones.conf
+                echo "Forward zone config written:"
                 cat /etc/powerdns/recursor.d/forward-zones.conf
         containers:
           app:
@@ -106,3 +113,7 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /etc/powerdns/recursor.d
+
+    serviceAccount:
+      powerdns-recursor:
+        enabled: true
