@@ -127,6 +127,5 @@ spec:
         globalMounts:
           - path: /config
 
-    serviceAccount:
-      unbound:
-        enabled: true
+    # Don't create serviceAccount - using manual one from rbac.yaml
+    # The app-template should auto-detect and use the SA with the same name as controller
