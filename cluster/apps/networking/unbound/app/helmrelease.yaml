@@ -20,6 +20,7 @@ spec:
       retries: 3
   values:
     defaultPodOptions:
+      automountServiceAccountToken: true
       dnsPolicy: ClusterFirst
       dnsConfig:
         nameservers:
@@ -127,5 +128,6 @@ spec:
         globalMounts:
           - path: /config
 
-    # Don't create serviceAccount - using manual one from rbac.yaml
-    # The app-template should auto-detect and use the SA with the same name as controller
+    serviceAccount:
+      unbound:
+        enabled: true
