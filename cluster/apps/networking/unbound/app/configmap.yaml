@@ -7,6 +7,9 @@ metadata:
 data:
   unbound.conf: |
     server:
+        # Run in foreground (required for containers)
+        do-daemonize: no
+
         # Listen on all interfaces
         interface: 0.0.0.0
         port: 53
@@ -30,12 +33,12 @@ data:
         harden-dnssec-stripped: yes
         use-caps-for-id: yes
 
-        # DNSSEC
-        auto-trust-anchor-file: "/var/lib/unbound/root.key"
-        val-clean-additional: yes
+        # DNSSEC - disable auto-trust-anchor since we don't have a writable directory
+        # trust-anchor-file: "/etc/unbound/root.key"
+        # val-clean-additional: yes
 
         # Logging
-        verbosity: 1
+        verbosity: 2
         log-queries: no
 
         # Prefetch popular queries
