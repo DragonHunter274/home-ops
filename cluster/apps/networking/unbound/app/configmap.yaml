@@ -42,9 +42,9 @@ data:
         prefetch: yes
         prefetch-key: yes
 
-        # Performance
-        so-rcvbuf: 4m
-        so-sndbuf: 4m
+        # Performance - buffer sizes (set to what's available in container)
+        so-rcvbuf: 1m
+        so-sndbuf: 1m
 
     # Forward zones for authoritative domains
     # All queries for these domains go to PowerDNS Auth
