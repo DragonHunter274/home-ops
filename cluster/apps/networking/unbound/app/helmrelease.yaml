@@ -36,15 +36,20 @@ spec:
         initContainers:
           resolve-powerdns:
             image:
-              repository: busybox
-              tag: "1.36"
+              repository: registry.k8s.io/kubectl
+              tag: "v1.31.0"
             command:
               - sh
               - -c
               - |
-                # Resolve PowerDNS service to IP using cluster DNS
-                PDNS_IP=$(nslookup powerdns.networking.svc.cluster.local | grep -A1 "Name:" | tail -1 | awk '{print $3}')
+                # Get PowerDNS service ClusterIP from Kubernetes API
+                PDNS_IP=$(kubectl get svc powerdns -n networking -o jsonpath='{.spec.clusterIP}')
                 echo "Resolved PowerDNS to: $PDNS_IP"
+
+                if [ -z "$PDNS_IP" ]; then
+                  echo "ERROR: Failed to get PowerDNS service ClusterIP"
+                  exit 1
+                fi
 
                 # Create stub zone config with the IP
                 cat > /config/stub-zones.conf <<EOF
@@ -115,3 +120,7 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /config
+
+    serviceAccount:
+      unbound:
+        enabled: true
