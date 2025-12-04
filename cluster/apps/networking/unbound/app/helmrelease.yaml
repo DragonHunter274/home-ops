@@ -26,14 +26,8 @@ spec:
         containers:
           app:
             image:
-              repository: klutchell/unbound
-              tag: "1.21.1"
-            command:
-              - /usr/sbin/unbound
-              - -d
-              - -vvv
-              - -c
-              - /etc/unbound/unbound.conf
+              repository: pedantic/unbound
+              tag: "latest"
             securityContext:
               runAsUser: 0
               runAsGroup: 0
@@ -83,10 +77,6 @@ spec:
         type: configMap
         name: unbound-config
         globalMounts:
-          - path: /etc/unbound/unbound.conf
+          - path: /opt/unbound/etc/unbound/unbound.conf
             subPath: unbound.conf
             readOnly: true
-      root-hints:
-        type: emptyDir
-        globalMounts:
-          - path: /var/lib/unbound

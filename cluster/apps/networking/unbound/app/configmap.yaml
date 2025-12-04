@@ -7,43 +7,47 @@ metadata:
 data:
   unbound.conf: |
     server:
-        # Run in foreground (required for containers)
-        do-daemonize: no
+      # Directory
+      directory: "/opt/unbound/etc/unbound"
 
-        # Listen on all interfaces
-        interface: 0.0.0.0
-        port: 53
+      # Listen on all interfaces
+      interface: 0.0.0.0@53
+      do-daemonize: no
 
-        # Access control - allow all
-        access-control: 0.0.0.0/0 allow
+      # Access control - allow all
+      access-control: 0.0.0.0/0 allow
 
-        # Use all threads
-        num-threads: 2
+      # Performance tuning
+      num-threads: 2
+      msg-cache-size: 256m
+      msg-cache-slabs: 4
+      rrset-cache-size: 512m
+      rrset-cache-slabs: 4
+      cache-min-ttl: 60
+      cache-max-ttl: 86400
 
-        # Performance tuning
-        msg-cache-size: 128m
-        rrset-cache-size: 256m
-        cache-min-ttl: 300
-        cache-max-ttl: 86400
+      # Performance
+      prefetch: yes
+      prefetch-key: yes
+      minimal-responses: yes
+      so-reuseport: yes
 
-        # Privacy and security
-        hide-identity: yes
-        hide-version: yes
-        harden-glue: yes
-        harden-dnssec-stripped: yes
-        use-caps-for-id: yes
+      # Privacy and security
+      hide-identity: yes
+      hide-version: yes
+      harden-glue: yes
+      harden-large-queries: yes
+      use-caps-for-id: no
+      val-clean-additional: yes
 
-        # DNSSEC - disable auto-trust-anchor since we don't have a writable directory
-        # trust-anchor-file: "/etc/unbound/root.key"
-        # val-clean-additional: yes
+      # DNSSEC
+      auto-trust-anchor-file: "var/root.key"
 
-        # Logging
-        verbosity: 2
-        log-queries: no
-
-        # Prefetch popular queries
-        prefetch: yes
-        prefetch-key: yes
+      # Logging
+      logfile: /dev/stdout
+      verbosity: 1
+      log-queries: no
+      log-replies: no
 
     # Forward zones for authoritative domains
     # All queries for these domains go to PowerDNS Auth
@@ -51,7 +55,5 @@ data:
         name: "${SECRET_DEV_DOMAIN}"
         forward-addr: powerdns.networking.svc.cluster.local
 
-    # Add more forward zones here if needed
-    # forward-zone:
-    #     name: "example.com"
-    #     forward-addr: powerdns.networking.svc.cluster.local
+    remote-control:
+        control-enable: no
