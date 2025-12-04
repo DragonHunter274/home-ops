@@ -1,0 +1,58 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unbound-config
+  namespace: networking
+data:
+  unbound.conf: |
+    server:
+        # Listen on all interfaces
+        interface: 0.0.0.0
+        port: 53
+
+        # Access control - allow all
+        access-control: 0.0.0.0/0 allow
+
+        # Use all threads
+        num-threads: 2
+
+        # Performance tuning
+        msg-cache-size: 128m
+        rrset-cache-size: 256m
+        cache-min-ttl: 300
+        cache-max-ttl: 86400
+
+        # Privacy and security
+        hide-identity: yes
+        hide-version: yes
+        harden-glue: yes
+        harden-dnssec-stripped: yes
+        use-caps-for-id: yes
+
+        # DNSSEC
+        auto-trust-anchor-file: "/var/lib/unbound/root.key"
+        val-clean-additional: yes
+
+        # Logging
+        verbosity: 1
+        log-queries: no
+
+        # Prefetch popular queries
+        prefetch: yes
+        prefetch-key: yes
+
+        # Performance
+        so-rcvbuf: 4m
+        so-sndbuf: 4m
+
+    # Forward zones for authoritative domains
+    # All queries for these domains go to PowerDNS Auth
+    forward-zone:
+        name: "${SECRET_DEV_DOMAIN}"
+        forward-addr: powerdns.networking.svc.cluster.local
+
+    # Add more forward zones here if needed
+    # forward-zone:
+    #     name: "example.com"
+    #     forward-addr: powerdns.networking.svc.cluster.local
