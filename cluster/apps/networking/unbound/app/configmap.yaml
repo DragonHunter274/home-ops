@@ -44,16 +44,16 @@ data:
       auto-trust-anchor-file: "var/root.key"
 
       # Logging
-      logfile: /dev/stdout
+      logfile: ""
       verbosity: 1
       log-queries: no
       log-replies: no
 
-    # Forward zones for authoritative domains
+    # Stub zones for authoritative domains
     # All queries for these domains go to PowerDNS Auth
-    forward-zone:
+    stub-zone:
         name: "${SECRET_DEV_DOMAIN}"
-        forward-addr: powerdns.networking.svc.cluster.local
+        stub-host: powerdns.networking.svc.cluster.local
 
     remote-control:
         control-enable: no
