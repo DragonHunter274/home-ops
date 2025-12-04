@@ -53,7 +53,7 @@ data:
     # All queries for these domains go to PowerDNS Auth
     stub-zone:
         name: "${SECRET_DEV_DOMAIN}"
-        stub-addr: 10.43.196.137
+        stub-host: powerdns.networking.svc.cluster.local
 
     remote-control:
         control-enable: no

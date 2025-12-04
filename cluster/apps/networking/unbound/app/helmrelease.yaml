@@ -19,6 +19,16 @@ spec:
     remediation:
       retries: 3
   values:
+    defaultPodOptions:
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        nameservers:
+          - 10.43.0.10
+        searches:
+          - networking.svc.cluster.local
+          - svc.cluster.local
+          - cluster.local
+
     controllers:
       unbound:
         replicas: 3
