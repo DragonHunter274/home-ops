@@ -33,6 +33,27 @@ spec:
       unbound:
         replicas: 3
         strategy: RollingUpdate
+        initContainers:
+          resolve-powerdns:
+            image:
+              repository: busybox
+              tag: "1.36"
+            command:
+              - sh
+              - -c
+              - |
+                # Resolve PowerDNS service to IP using cluster DNS
+                PDNS_IP=$(nslookup powerdns.networking.svc.cluster.local | grep -A1 "Name:" | tail -1 | awk '{print $3}')
+                echo "Resolved PowerDNS to: $PDNS_IP"
+
+                # Create stub zone config with the IP
+                cat > /config/stub-zones.conf <<EOF
+                stub-zone:
+                    name: "${SECRET_DEV_DOMAIN}"
+                    stub-addr: $PDNS_IP
+                EOF
+
+                cat /config/stub-zones.conf
         containers:
           app:
             image:
@@ -90,3 +111,7 @@ spec:
           - path: /opt/unbound/etc/unbound/unbound.conf
             subPath: unbound.conf
             readOnly: true
+      stub-zones:
+        type: emptyDir
+        globalMounts:
+          - path: /config
