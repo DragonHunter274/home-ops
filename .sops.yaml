@@ -1,7 +1,7 @@
 keys:
   - &dh274 age10wjzxqwstyddl6zy02drchuy76a3fph3jznnp8agu5t9gkqjdegsj4a0ls
   - &k3s-flux-operator-dev age1vlnldnfdj72qmqg9shtf4q8kzh890g7f4wkuzqw4vaj4ja3hnp2su7eh47
-
+  - &minipc age1y54qgey5kd66rtadzwck29pmu8dz78wgdymkcdf84kpprs5d634qwswgt7
 creation_rules:
   # Default rule for all SOPS files - encrypts data and stringData fields
   - encrypted_regex: '^(data|stringData)$'
@@ -9,6 +9,7 @@ creation_rules:
     - age:
       - *dh274
       - *k3s-flux-operator-dev
+      - *minipc
 
   # Flux specific rules for components directory
   - path_regex: components/.*\.sops\.ya?ml
@@ -17,6 +18,7 @@ creation_rules:
     - age:
       - *dh274
       - *k3s-flux-operator-dev
+      - *minipc
 
   # Flux specific rules for cluster directory
   - path_regex: cluster/.*\.ya?ml
@@ -25,4 +27,5 @@ creation_rules:
     - age:
       - *dh274
       - *k3s-flux-operator-dev
+      - *minipc
 
