@@ -3,6 +3,7 @@ keys:
   - &k3s-flux-operator-dev age1vlnldnfdj72qmqg9shtf4q8kzh890g7f4wkuzqw4vaj4ja3hnp2su7eh47
   - &minipc age1y54qgey5kd66rtadzwck29pmu8dz78wgdymkcdf84kpprs5d634qwswgt7
   - &hetzner-tpm age1tag1qwsqsp84g0nwnz25ex3aux4g06y0lgdwm7d90cg654wuch87gs2t7gnd0ru
+  - &k3s-hetzner age182kwjn57z9vqgahjkd6phq65phdhp8klffnk7q360zxt9wwerazsqgn3v9
 creation_rules:
   # Default rule for all SOPS files - encrypts data and stringData fields
   - encrypted_regex: '^(data|stringData)$'
@@ -11,7 +12,7 @@ creation_rules:
       - *dh274
       - *k3s-flux-operator-dev
       - *minipc
-      - *hetzner-tpm
+      - *k3s-hetzner
 
   # Flux specific rules for components directory
   - path_regex: components/.*\.sops\.ya?ml
@@ -21,7 +22,7 @@ creation_rules:
       - *dh274
       - *k3s-flux-operator-dev
       - *minipc
-      - *hetzner-tpm
+      - *k3s-hetzner
 
   # Flux specific rules for cluster directory
   - path_regex: cluster/.*\.ya?ml
@@ -31,4 +32,4 @@ creation_rules:
       - *dh274
       - *k3s-flux-operator-dev
       - *minipc
-      - *hetzner-tpm
+      - *k3s-hetzner
